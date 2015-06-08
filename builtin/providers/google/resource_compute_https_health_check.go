@@ -49,7 +49,7 @@ func resourceComputeHttpsHealthCheck() *schema.Resource {
 			"port": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  80,
+				Default:  443,
 			},
 
 			"request_path": &schema.Schema{

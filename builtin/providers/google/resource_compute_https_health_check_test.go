@@ -144,7 +144,7 @@ resource "google_compute_https_health_check" "foobar" {
 	healthy_threshold = 3
 	host = "foobar"
 	name = "terraform-test"
-	port = "80"
+	port = "443"
 	request_path = "/health_check"
 	timeout_sec = 2
 	unhealthy_threshold = 3
