@@ -9,22 +9,22 @@ import (
 	"google.golang.org/api/compute/v1"
 )
 
-func TestAccComputeHttpHealthCheck_basic(t *testing.T) {
-	var healthCheck compute.HttpHealthCheck
+func TestAccComputeHttpsHealthCheck_basic(t *testing.T) {
+	var healthCheck compute.HttpsHealthCheck
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHttpHealthCheckDestroy,
+		CheckDestroy: testAccCheckComputeHttpsHealthCheckDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeHttpHealthCheck_basic,
+				Config: testAccComputeHttpsHealthCheck_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeHttpHealthCheckExists(
-						"google_compute_http_health_check.foobar", &healthCheck),
-					testAccCheckComputeHttpHealthCheckRequestPath(
+					testAccCheckComputeHttpsHealthCheckExists(
+						"google_compute_https_health_check.foobar", &healthCheck),
+					testAccCheckComputeHttpsHealthCheckRequestPath(
 						"/health_check", &healthCheck),
-					testAccCheckComputeHttpHealthCheckThresholds(
+					testAccCheckComputeHttpsHealthCheckThresholds(
 						3, 3, &healthCheck),
 				),
 			},
@@ -32,33 +32,33 @@ func TestAccComputeHttpHealthCheck_basic(t *testing.T) {
 	})
 }
 
-func TestAccComputeHttpHealthCheck_update(t *testing.T) {
-	var healthCheck compute.HttpHealthCheck
+func TestAccComputeHttpsHealthCheck_update(t *testing.T) {
+	var healthCheck compute.HttpsHealthCheck
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeHttpHealthCheckDestroy,
+		CheckDestroy: testAccCheckComputeHttpsHealthCheckDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccComputeHttpHealthCheck_update1,
+				Config: testAccComputeHttpsHealthCheck_update1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeHttpHealthCheckExists(
-						"google_compute_http_health_check.foobar", &healthCheck),
-					testAccCheckComputeHttpHealthCheckRequestPath(
+					testAccCheckComputeHttpsHealthCheckExists(
+						"google_compute_https_health_check.foobar", &healthCheck),
+					testAccCheckComputeHttpsHealthCheckRequestPath(
 						"/not_default", &healthCheck),
-					testAccCheckComputeHttpHealthCheckThresholds(
+					testAccCheckComputeHttpsHealthCheckThresholds(
 						2, 2, &healthCheck),
 				),
 			},
 			resource.TestStep{
-				Config: testAccComputeHttpHealthCheck_update2,
+				Config: testAccComputeHttpsHealthCheck_update2,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeHttpHealthCheckExists(
-						"google_compute_http_health_check.foobar", &healthCheck),
-					testAccCheckComputeHttpHealthCheckRequestPath(
+					testAccCheckComputeHttpsHealthCheckExists(
+						"google_compute_https_health_check.foobar", &healthCheck),
+					testAccCheckComputeHttpsHealthCheckRequestPath(
 						"/", &healthCheck),
-					testAccCheckComputeHttpHealthCheckThresholds(
+					testAccCheckComputeHttpsHealthCheckThresholds(
 						10, 10, &healthCheck),
 				),
 			},
@@ -66,25 +66,25 @@ func TestAccComputeHttpHealthCheck_update(t *testing.T) {
 	})
 }
 
-func testAccCheckComputeHttpHealthCheckDestroy(s *terraform.State) error {
+func testAccCheckComputeHttpsHealthCheckDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "google_compute_http_health_check" {
+		if rs.Type != "google_compute_https_health_check" {
 			continue
 		}
 
-		_, err := config.clientCompute.HttpHealthChecks.Get(
+		_, err := config.clientCompute.HttpsHealthChecks.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err == nil {
-			return fmt.Errorf("HttpHealthCheck still exists")
+			return fmt.Errorf("HttpsHealthCheck still exists")
 		}
 	}
 
 	return nil
 }
 
-func testAccCheckComputeHttpHealthCheckExists(n string, healthCheck *compute.HttpHealthCheck) resource.TestCheckFunc {
+func testAccCheckComputeHttpsHealthCheckExists(n string, healthCheck *compute.HttpsHealthCheck) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -97,14 +97,14 @@ func testAccCheckComputeHttpHealthCheckExists(n string, healthCheck *compute.Htt
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.clientCompute.HttpHealthChecks.Get(
+		found, err := config.clientCompute.HttpsHealthChecks.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err != nil {
 			return err
 		}
 
 		if found.Name != rs.Primary.ID {
-			return fmt.Errorf("HttpHealthCheck not found")
+			return fmt.Errorf("HttpsHealthCheck not found")
 		}
 
 		*healthCheck = *found
@@ -113,7 +113,7 @@ func testAccCheckComputeHttpHealthCheckExists(n string, healthCheck *compute.Htt
 	}
 }
 
-func testAccCheckComputeHttpHealthCheckRequestPath(path string, healthCheck *compute.HttpHealthCheck) resource.TestCheckFunc {
+func testAccCheckComputeHttpsHealthCheckRequestPath(path string, healthCheck *compute.HttpsHealthCheck) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if healthCheck.RequestPath != path {
 			return fmt.Errorf("RequestPath doesn't match: expected %s, got %s", path, healthCheck.RequestPath)
@@ -123,7 +123,7 @@ func testAccCheckComputeHttpHealthCheckRequestPath(path string, healthCheck *com
 	}
 }
 
-func testAccCheckComputeHttpHealthCheckThresholds(healthy, unhealthy int64, healthCheck *compute.HttpHealthCheck) resource.TestCheckFunc {
+func testAccCheckComputeHttpsHealthCheckThresholds(healthy, unhealthy int64, healthCheck *compute.HttpsHealthCheck) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if healthCheck.HealthyThreshold != healthy {
 			return fmt.Errorf("HealthyThreshold doesn't match: expected %d, got %d", healthy, healthCheck.HealthyThreshold)
@@ -137,8 +137,8 @@ func testAccCheckComputeHttpHealthCheckThresholds(healthy, unhealthy int64, heal
 	}
 }
 
-const testAccComputeHttpHealthCheck_basic = `
-resource "google_compute_http_health_check" "foobar" {
+const testAccComputeHttpsHealthCheck_basic = `
+resource "google_compute_https_health_check" "foobar" {
 	check_interval_sec = 3
 	description = "Resource created for Terraform acceptance testing"
 	healthy_threshold = 3
@@ -151,8 +151,8 @@ resource "google_compute_http_health_check" "foobar" {
 }
 `
 
-const testAccComputeHttpHealthCheck_update1 = `
-resource "google_compute_http_health_check" "foobar" {
+const testAccComputeHttpsHealthCheck_update1 = `
+resource "google_compute_https_health_check" "foobar" {
 	name = "terraform-test"
 	description = "Resource created for Terraform acceptance testing"
 	request_path = "/not_default"
@@ -161,8 +161,8 @@ resource "google_compute_http_health_check" "foobar" {
 
 /* Change description, restore request_path to default, and change
 * thresholds from defaults */
-const testAccComputeHttpHealthCheck_update2 = `
-resource "google_compute_http_health_check" "foobar" {
+const testAccComputeHttpsHealthCheck_update2 = `
+resource "google_compute_https_health_check" "foobar" {
 	name = "terraform-test"
 	description = "Resource updated for Terraform acceptance testing"
 	healthy_threshold = 10

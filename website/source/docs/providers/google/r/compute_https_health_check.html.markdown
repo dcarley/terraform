@@ -1,24 +1,24 @@
 ---
 layout: "google"
-page_title: "Google: google_compute_http_health_check"
-sidebar_current: "docs-google-resource-http_health_check"
+page_title: "Google: google_compute_https_health_check"
+sidebar_current: "docs-google-resource-https_health_check"
 description: |-
-  Manages an HTTP Health Check within GCE.
+  Manages an HTTPS Health Check within GCE.
 ---
 
-# google\_compute\_http\_health\_check
+# google\_compute\_https\_health\_check
 
-Manages an HTTP health check within GCE.  This is used to monitor instances
+Manages an HTTPS health check within GCE.  This is used to monitor instances
 behind load balancers.  Timeouts or HTTP errors cause the instance to be
 removed from the pool.  For more information, see [the official
 documentation](https://cloud.google.com/compute/docs/load-balancing/health-checks)
 and
-[API](https://cloud.google.com/compute/docs/reference/latest/httpHealthChecks).
+[API](https://cloud.google.com/compute/docs/reference/beta/httpsHealthChecks).
 
 ## Example Usage
 
 ```
-resource "google_compute_http_health_check" "default" {
+resource "google_compute_https_health_check" "default" {
 	name = "test"
     request_path = "/health_check"
     check_interval_sec = 1

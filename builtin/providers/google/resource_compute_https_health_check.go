@@ -10,12 +10,12 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func resourceComputeHttpHealthCheck() *schema.Resource {
+func resourceComputeHttpsHealthCheck() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceComputeHttpHealthCheckCreate,
-		Read:   resourceComputeHttpHealthCheckRead,
-		Delete: resourceComputeHttpHealthCheckDelete,
-		Update: resourceComputeHttpHealthCheckUpdate,
+		Create: resourceComputeHttpsHealthCheckCreate,
+		Read:   resourceComputeHttpsHealthCheckRead,
+		Delete: resourceComputeHttpsHealthCheckDelete,
+		Update: resourceComputeHttpsHealthCheckUpdate,
 
 		Schema: map[string]*schema.Schema{
 			"check_interval_sec": &schema.Schema{
@@ -78,11 +78,11 @@ func resourceComputeHttpHealthCheck() *schema.Resource {
 	}
 }
 
-func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	// Build the parameter
-	hchk := &compute.HttpHealthCheck{
+	hchk := &compute.HttpsHealthCheck{
 		Name: d.Get("name").(string),
 	}
 	// Optional things
@@ -111,11 +111,11 @@ func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface
 		hchk.UnhealthyThreshold = int64(v.(int))
 	}
 
-	log.Printf("[DEBUG] HttpHealthCheck insert request: %#v", hchk)
-	op, err := config.clientCompute.HttpHealthChecks.Insert(
+	log.Printf("[DEBUG] HttpsHealthCheck insert request: %#v", hchk)
+	op, err := config.clientCompute.HttpsHealthChecks.Insert(
 		config.Project, hchk).Do()
 	if err != nil {
-		return fmt.Errorf("Error creating HttpHealthCheck: %s", err)
+		return fmt.Errorf("Error creating HttpsHealthCheck: %s", err)
 	}
 
 	// It probably maybe worked, so store the ID now
@@ -133,7 +133,7 @@ func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface
 	state.MinTimeout = 1 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for HttpHealthCheck to create: %s", err)
+		return fmt.Errorf("Error waiting for HttpsHealthCheck to create: %s", err)
 	}
 	op = opRaw.(*compute.Operation)
 	if op.Error != nil {
@@ -144,14 +144,14 @@ func resourceComputeHttpHealthCheckCreate(d *schema.ResourceData, meta interface
 		return OperationError(*op.Error)
 	}
 
-	return resourceComputeHttpHealthCheckRead(d, meta)
+	return resourceComputeHttpsHealthCheckRead(d, meta)
 }
 
-func resourceComputeHttpHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	// Build the parameter
-	hchk := &compute.HttpHealthCheck{
+	hchk := &compute.HttpsHealthCheck{
 		Name: d.Get("name").(string),
 	}
 	// Optional things
@@ -180,11 +180,11 @@ func resourceComputeHttpHealthCheckUpdate(d *schema.ResourceData, meta interface
 		hchk.UnhealthyThreshold = int64(v.(int))
 	}
 
-	log.Printf("[DEBUG] HttpHealthCheck patch request: %#v", hchk)
-	op, err := config.clientCompute.HttpHealthChecks.Patch(
+	log.Printf("[DEBUG] HttpsHealthCheck patch request: %#v", hchk)
+	op, err := config.clientCompute.HttpsHealthChecks.Patch(
 		config.Project, hchk.Name, hchk).Do()
 	if err != nil {
-		return fmt.Errorf("Error patching HttpHealthCheck: %s", err)
+		return fmt.Errorf("Error patching HttpsHealthCheck: %s", err)
 	}
 
 	// It probably maybe worked, so store the ID now
@@ -202,7 +202,7 @@ func resourceComputeHttpHealthCheckUpdate(d *schema.ResourceData, meta interface
 	state.MinTimeout = 1 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for HttpHealthCheck to patch: %s", err)
+		return fmt.Errorf("Error waiting for HttpsHealthCheck to patch: %s", err)
 	}
 	op = opRaw.(*compute.Operation)
 	if op.Error != nil {
@@ -213,13 +213,13 @@ func resourceComputeHttpHealthCheckUpdate(d *schema.ResourceData, meta interface
 		return OperationError(*op.Error)
 	}
 
-	return resourceComputeHttpHealthCheckRead(d, meta)
+	return resourceComputeHttpsHealthCheckRead(d, meta)
 }
 
-func resourceComputeHttpHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeHttpsHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	hchk, err := config.clientCompute.HttpHealthChecks.Get(
+	hchk, err := config.clientCompute.HttpsHealthChecks.Get(
 		config.Project, d.Id()).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -229,7 +229,7 @@ func resourceComputeHttpHealthCheckRead(d *schema.ResourceData, meta interface{}
 			return nil
 		}
 
-		return fmt.Errorf("Error reading HttpHealthCheck: %s", err)
+		return fmt.Errorf("Error reading HttpsHealthCheck: %s", err)
 	}
 
 	d.Set("host", hchk.Host)
@@ -244,14 +244,14 @@ func resourceComputeHttpHealthCheckRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceComputeHttpHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	// Delete the HttpHealthCheck
-	op, err := config.clientCompute.HttpHealthChecks.Delete(
+	// Delete the HttpsHealthCheck
+	op, err := config.clientCompute.HttpsHealthChecks.Delete(
 		config.Project, d.Id()).Do()
 	if err != nil {
-		return fmt.Errorf("Error deleting HttpHealthCheck: %s", err)
+		return fmt.Errorf("Error deleting HttpsHealthCheck: %s", err)
 	}
 
 	// Wait for the operation to complete
@@ -266,7 +266,7 @@ func resourceComputeHttpHealthCheckDelete(d *schema.ResourceData, meta interface
 	state.MinTimeout = 1 * time.Second
 	opRaw, err := state.WaitForState()
 	if err != nil {
-		return fmt.Errorf("Error waiting for HttpHealthCheck to delete: %s", err)
+		return fmt.Errorf("Error waiting for HttpsHealthCheck to delete: %s", err)
 	}
 	op = opRaw.(*compute.Operation)
 	if op.Error != nil {
