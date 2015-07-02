@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/googleapi"
 )
 
@@ -112,7 +112,7 @@ func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] HttpsHealthCheck insert request: %#v", hchk)
-	op, err := config.clientCompute.HttpsHealthChecks.Insert(
+	op, err := config.clientComputeBeta.HttpsHealthChecks.Insert(
 		config.Project, hchk).Do()
 	if err != nil {
 		return fmt.Errorf("Error creating HttpsHealthCheck: %s", err)
@@ -123,7 +123,7 @@ func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interfac
 
 	// Wait for the operation to complete
 	w := &OperationWaiter{
-		Service: config.clientCompute,
+		Service: config.clientComputeBeta,
 		Op:      op,
 		Project: config.Project,
 		Type:    OperationWaitGlobal,
@@ -181,7 +181,7 @@ func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	log.Printf("[DEBUG] HttpsHealthCheck patch request: %#v", hchk)
-	op, err := config.clientCompute.HttpsHealthChecks.Patch(
+	op, err := config.clientComputeBeta.HttpsHealthChecks.Patch(
 		config.Project, hchk.Name, hchk).Do()
 	if err != nil {
 		return fmt.Errorf("Error patching HttpsHealthCheck: %s", err)
@@ -192,7 +192,7 @@ func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interfac
 
 	// Wait for the operation to complete
 	w := &OperationWaiter{
-		Service: config.clientCompute,
+		Service: config.clientComputeBeta,
 		Op:      op,
 		Project: config.Project,
 		Type:    OperationWaitGlobal,
@@ -219,7 +219,7 @@ func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interfac
 func resourceComputeHttpsHealthCheckRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	hchk, err := config.clientCompute.HttpsHealthChecks.Get(
+	hchk, err := config.clientComputeBeta.HttpsHealthChecks.Get(
 		config.Project, d.Id()).Do()
 	if err != nil {
 		if gerr, ok := err.(*googleapi.Error); ok && gerr.Code == 404 {
@@ -248,7 +248,7 @@ func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interfac
 	config := meta.(*Config)
 
 	// Delete the HttpsHealthCheck
-	op, err := config.clientCompute.HttpsHealthChecks.Delete(
+	op, err := config.clientComputeBeta.HttpsHealthChecks.Delete(
 		config.Project, d.Id()).Do()
 	if err != nil {
 		return fmt.Errorf("Error deleting HttpsHealthCheck: %s", err)
@@ -256,7 +256,7 @@ func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interfac
 
 	// Wait for the operation to complete
 	w := &OperationWaiter{
-		Service: config.clientCompute,
+		Service: config.clientComputeBeta,
 		Op:      op,
 		Project: config.Project,
 		Type:    OperationWaitGlobal,

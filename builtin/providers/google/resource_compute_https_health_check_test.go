@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/compute/v0.beta"
 )
 
 func TestAccComputeHttpsHealthCheck_basic(t *testing.T) {
@@ -74,7 +74,7 @@ func testAccCheckComputeHttpsHealthCheckDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.clientCompute.HttpsHealthChecks.Get(
+		_, err := config.clientComputeBeta.HttpsHealthChecks.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err == nil {
 			return fmt.Errorf("HttpsHealthCheck still exists")
@@ -97,7 +97,7 @@ func testAccCheckComputeHttpsHealthCheckExists(n string, healthCheck *compute.Ht
 
 		config := testAccProvider.Meta().(*Config)
 
-		found, err := config.clientCompute.HttpsHealthChecks.Get(
+		found, err := config.clientComputeBeta.HttpsHealthChecks.Get(
 			config.Project, rs.Primary.ID).Do()
 		if err != nil {
 			return err
