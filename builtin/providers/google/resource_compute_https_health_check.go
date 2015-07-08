@@ -122,7 +122,7 @@ func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interfac
 	d.SetId(hchk.Name)
 
 	// Wait for the operation to complete
-	w := &OperationWaiter{
+	w := &OperationWaiterBeta{
 		Service: config.clientComputeBeta,
 		Op:      op,
 		Project: config.Project,
@@ -141,7 +141,7 @@ func resourceComputeHttpsHealthCheckCreate(d *schema.ResourceData, meta interfac
 		d.SetId("")
 
 		// Return the error
-		return OperationError(*op.Error)
+		return OperationErrorBeta(*op.Error)
 	}
 
 	return resourceComputeHttpsHealthCheckRead(d, meta)
@@ -191,7 +191,7 @@ func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interfac
 	d.SetId(hchk.Name)
 
 	// Wait for the operation to complete
-	w := &OperationWaiter{
+	w := &OperationWaiterBeta{
 		Service: config.clientComputeBeta,
 		Op:      op,
 		Project: config.Project,
@@ -210,7 +210,7 @@ func resourceComputeHttpsHealthCheckUpdate(d *schema.ResourceData, meta interfac
 		d.SetId("")
 
 		// Return the error
-		return OperationError(*op.Error)
+		return OperationErrorBeta(*op.Error)
 	}
 
 	return resourceComputeHttpsHealthCheckRead(d, meta)
@@ -255,7 +255,7 @@ func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interfac
 	}
 
 	// Wait for the operation to complete
-	w := &OperationWaiter{
+	w := &OperationWaiterBeta{
 		Service: config.clientComputeBeta,
 		Op:      op,
 		Project: config.Project,
@@ -271,7 +271,7 @@ func resourceComputeHttpsHealthCheckDelete(d *schema.ResourceData, meta interfac
 	op = opRaw.(*compute.Operation)
 	if op.Error != nil {
 		// Return the error
-		return OperationError(*op.Error)
+		return OperationErrorBeta(*op.Error)
 	}
 
 	d.SetId("")

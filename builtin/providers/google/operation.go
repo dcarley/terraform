@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
+	computeBeta "google.golang.org/api/compute/v0.beta"
 	"google.golang.org/api/compute/v1"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -23,6 +24,15 @@ const (
 type OperationWaiter struct {
 	Service *compute.Service
 	Op      *compute.Operation
+	Project string
+	Region  string
+	Zone    string
+	Type    OperationWaitType
+}
+
+type OperationWaiterBeta struct {
+	Service *computeBeta.Service
+	Op      *computeBeta.Operation
 	Project string
 	Region  string
 	Zone    string
@@ -57,7 +67,43 @@ func (w *OperationWaiter) RefreshFunc() resource.StateRefreshFunc {
 	}
 }
 
+func (w *OperationWaiterBeta) RefreshFunc() resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		var op *computeBeta.Operation
+		var err error
+
+		switch w.Type {
+		case OperationWaitGlobal:
+			op, err = w.Service.GlobalOperations.Get(
+				w.Project, w.Op.Name).Do()
+		case OperationWaitRegion:
+			op, err = w.Service.RegionOperations.Get(
+				w.Project, w.Region, w.Op.Name).Do()
+		case OperationWaitZone:
+			op, err = w.Service.ZoneOperations.Get(
+				w.Project, w.Zone, w.Op.Name).Do()
+		default:
+			return nil, "bad-type", fmt.Errorf(
+				"Invalid wait type: %#v", w.Type)
+		}
+
+		if err != nil {
+			return nil, "", err
+		}
+
+		return op, op.Status, nil
+	}
+}
+
 func (w *OperationWaiter) Conf() *resource.StateChangeConf {
+	return &resource.StateChangeConf{
+		Pending: []string{"PENDING", "RUNNING"},
+		Target:  "DONE",
+		Refresh: w.RefreshFunc(),
+	}
+}
+
+func (w *OperationWaiterBeta) Conf() *resource.StateChangeConf {
 	return &resource.StateChangeConf{
 		Pending: []string{"PENDING", "RUNNING"},
 		Target:  "DONE",
@@ -69,7 +115,21 @@ func (w *OperationWaiter) Conf() *resource.StateChangeConf {
 // error interface so it can be returned.
 type OperationError compute.OperationError
 
+// OperationErrorBeta wraps computeBeta.OperationError and implements the
+// error interface so it can be returned.
+type OperationErrorBeta computeBeta.OperationError
+
 func (e OperationError) Error() string {
+	var buf bytes.Buffer
+
+	for _, err := range e.Errors {
+		buf.WriteString(err.Message + "\n")
+	}
+
+	return buf.String()
+}
+
+func (e OperationErrorBeta) Error() string {
 	var buf bytes.Buffer
 
 	for _, err := range e.Errors {
