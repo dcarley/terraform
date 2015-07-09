@@ -99,20 +99,6 @@ func waitOp(config *Config, op *compute.Operation,
 	return opRaw.(*compute.Operation), nil
 }
 
-// Healthchecks need to exist before being referred to from the target pool.
-func convertHealthChecks(config *Config, names []string) ([]string, error) {
-	urls := make([]string, len(names))
-	for i, name := range names {
-		// Look up the healthcheck
-		res, err := config.clientCompute.HttpHealthChecks.Get(config.Project, name).Do()
-		if err != nil {
-			return nil, fmt.Errorf("Error reading HealthCheck: %s", err)
-		}
-		urls[i] = res.SelfLink
-	}
-	return urls, nil
-}
-
 // Instances do not need to exist yet, so we simply generate URLs.
 // Instances can be full URLS or zone/name
 func convertInstances(config *Config, names []string) ([]string, error) {
@@ -137,12 +123,6 @@ func convertInstances(config *Config, names []string) ([]string, error) {
 func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	hchkUrls, err := convertHealthChecks(
-		config, convertStringArr(d.Get("health_checks").([]interface{})))
-	if err != nil {
-		return err
-	}
-
 	instanceUrls, err := convertInstances(
 		config, convertStringArr(d.Get("instances").([]interface{})))
 	if err != nil {
@@ -153,7 +133,7 @@ func resourceComputeTargetPoolCreate(d *schema.ResourceData, meta interface{}) e
 	tpool := &compute.TargetPool{
 		BackupPool:      d.Get("backup_pool").(string),
 		Description:     d.Get("description").(string),
-		HealthChecks:    hchkUrls,
+		HealthChecks:    convertStringArr(d.Get("health_checks").([]interface{})),
 		Instances:       instanceUrls,
 		Name:            d.Get("name").(string),
 		SessionAffinity: d.Get("session_affinity").(string),
@@ -225,15 +205,7 @@ func resourceComputeTargetPoolUpdate(d *schema.ResourceData, meta interface{}) e
 		from_, to_ := d.GetChange("health_checks")
 		from := convertStringArr(from_.([]interface{}))
 		to := convertStringArr(to_.([]interface{}))
-		fromUrls, err := convertHealthChecks(config, from)
-		if err != nil {
-			return err
-		}
-		toUrls, err := convertHealthChecks(config, to)
-		if err != nil {
-			return err
-		}
-		add, remove := calcAddRemove(fromUrls, toUrls)
+		add, remove := calcAddRemove(from, to)
 
 		removeReq := &compute.TargetPoolsRemoveHealthCheckRequest{
 			HealthChecks: make([]*compute.HealthCheckReference, len(remove)),

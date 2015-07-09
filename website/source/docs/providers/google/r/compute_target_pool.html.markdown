@@ -21,7 +21,7 @@ and [API](https://cloud.google.com/compute/docs/reference/latest/targetPools).
 resource "google_compute_target_pool" "default" {
     name = "test"
     instances = [ "us-central1-a/myinstance1", "us-central1-b/myinstance2" ]
-    health_checks = [ "${google_compute_http_health_check.default.name}" ]
+    health_checks = [ "${google_compute_http_health_check.default.self_link}" ]
 }
 ```
 
@@ -37,7 +37,7 @@ The following arguments are supported:
 * `failover_ratio` - (Optional) Ratio (0 to 1) of failed nodes before using the
   backup pool (which must also be set).
 
-* `health_checks` - (Optional) List of zero or one healthcheck names.
+* `health_checks` - (Optional) List of zero or one healthcheck resource URLs.
 
 * `instances` - (Optional) List of instances in the pool.  They can be given as
   URLs, or in the form of "zone/name".  Note that the instances need not exist
