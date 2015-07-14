@@ -43,7 +43,10 @@ func TestAccComputeTargetPool_health_checks(t *testing.T) {
 					testAccCheckComputeTargetPoolExists(
 						"google_compute_target_pool.foobar", &targetPool),
 					testAccCheckComputeTargetPoolHealthChecks(
-						[]string{"google_compute_http_health_check.foobar"}, &targetPool),
+						[]string{
+							"google_compute_http_health_check.foobar",
+							"google_compute_https_health_check.foobar",
+						}, &targetPool),
 				),
 			},
 		},
@@ -137,8 +140,15 @@ resource "google_compute_http_health_check" "foobar" {
 	name = "foobar"
 	description = "Resource created for Terraform acceptance testing"
 }
+resource "google_compute_https_health_check" "foobar" {
+	name = "foobar"
+	description = "Resource created for Terraform acceptance testing"
+}
 resource "google_compute_target_pool" "foobar" {
 	name = "terraform-test"
 	description = "Resource created for Terraform acceptance testing"
-	health_checks = [ "${google_compute_http_health_check.foobar.self_link}" ]
+	health_checks = [
+		"${google_compute_http_health_check.foobar.self_link}",
+		"${google_compute_https_health_check.foobar.self_link}",
+	]
 }`
